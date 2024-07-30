@@ -53,8 +53,10 @@ def main():
                     if move in validMoves:
                         gs.makeMove(move)
                         moveMade = True
-                    sqSelected = () #reset user clicks
-                    playerClicks = []
+                        sqSelected = () #reset user clicks
+                        playerClicks = []
+                    else: #if the move is not valid
+                        playerClicks = [sqSelected] #only one click, keep the latest one
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z:
                     gs.undoMove()
