@@ -88,7 +88,23 @@ class GameState():
     Get all the rook moves for the rook located at row, col and add these moves to the list
     '''
     def getRookMoves(self, r, c, moves):
-        pass
+        directions = ((-1, 0), (0, -1), (1, 0), (0, 1)) #up, left, down, right
+        enemyColor = 'b' if self.whiteToMove else 'w'
+        for d in directions:
+            for i in range(1, 8):
+                endRow = r + d[0] * i
+                endCol = c + d[1] * i
+                if 0 <= endRow < 8 and 0 <= endCol < 8:
+                    endPiece = self.board[endRow][endCol]
+                    if endPiece == "--": #empty space valid
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                    elif endPiece[0] == enemyColor:
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                        break #capture enemy piece but no more, because you can't go through pieces
+                    else: #friendly piece, cannot capture
+                        break
+                else: #off board
+                    break
 
     '''
     Get all the knight moves for the knight located at row, col and add these moves to the list
