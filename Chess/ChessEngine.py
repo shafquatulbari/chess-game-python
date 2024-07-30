@@ -110,19 +110,46 @@ class GameState():
     Get all the knight moves for the knight located at row, col and add these moves to the list
     '''
     def getKnightMoves(self, r, c, moves):
-        pass
+        knightMoves = ((-2, -1), (-2, 1), (-1, -2), (-1, 2), (1, -2), (1, 2), (2, -1), (2, 1))
+        allyColor = 'w' if self.whiteToMove else 'b'
+        for m in knightMoves:
+            endRow = r + m[0] #m[0] and m[1] represent the row and col changes to reach the next square
+            endCol = c + m[1] 
+            if 0 <= endRow < 8 and 0 <= endCol < 8: #on board
+                endPiece = self.board[endRow][endCol]
+                if endPiece[0] != allyColor: #not an ally piece (empty or enemy piece)
+                    moves.append(Move((r, c), (endRow, endCol), self.board))
+                
 
     '''
     Get all the bishop moves for the bishop located at row, col and add these moves to the list
     '''
     def getBishopMoves(self, r, c, moves):
-        pass
+        directions = ((-1, -1), (-1, 1), (1, -1), (1, 1)) #up-left, up-right, down-left, down-right
+        enemyColor = 'b' if self.whiteToMove else 'w'
+        for d in directions:
+            for i in range(1, 8): #bishop can move max of 7 squares
+                endRow = r + d[0] * i
+                endCol = c + d[1] * i
+                if 0 <= endRow < 8 and 0 <= endCol < 8:
+                    endPiece = self.board[endRow][endCol]
+                    if endPiece == "--": #empty space valid
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                    elif endPiece[0] == enemyColor:
+                        moves.append(Move((r, c), (endRow, endCol), self.board))
+                        break
+                    else: #friendly piece, cannot capture
+                        break
+                else: #off board
+                    break
+
 
     '''
     Get all the queen moves for the queen located at row, col and add these moves to the list
     '''
     def getQueenMoves(self, r, c, moves):
-        pass
+        self.getRookMoves(r, c, moves)
+        self.getBishopMoves(r, c, moves)
 
     '''
     Get all the king moves for the king located at row, col and add these moves to the list
