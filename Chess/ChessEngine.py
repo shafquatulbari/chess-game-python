@@ -21,6 +21,8 @@ class GameState():
         self.moveLog = []
         self.whiteKingLocation = (7, 4)
         self.blackKingLocation = (0, 4)
+        self.checkMate = False
+        self.staleMate = False
     
     '''
     Takes a Move as a parameter and executes it. This will not work for castling, pawn promotion, and en-passant
@@ -66,6 +68,14 @@ class GameState():
                 moves.remove(moves[i])  #5. if they do, not a valid move 
             self.whiteToMove = not self.whiteToMove #switch turns back  
             self.undoMove() #undo the move
+        if len(moves) == 0:
+            if self.inCheck():
+                self.checkMate = True
+            else:
+                self.staleMate = True
+        else:
+            self.checkMate = False
+            self.staleMate = False
         return moves
     
     '''
