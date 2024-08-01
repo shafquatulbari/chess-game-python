@@ -1,6 +1,6 @@
 import pygame as p
 import ChessEngine
-WIDTH = HEIGHT = 512 #400 is another option
+WIDTH = HEIGHT = 680 #400 is another option
 DIMENSION = 8  #dimensions of a chess board are 8x8
 SQ_SIZE = HEIGHT // DIMENSION
 MAX_FPS = 15 #for animations later on
@@ -14,7 +14,7 @@ Initialize a global dictionary of images. This will be called exactly once in th
 def loadImages():
     pieces = ["wp", "wR", "wN", "wB", "wQ", "wK", "bp", "bR", "bN", "bB", "bQ", "bK"]
     for piece in pieces:
-        IMAGES[piece] = p.transform.scale(p.image.load("Chess/images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
+        IMAGES[piece] = p.transform.scale(p.image.load("Chess/images2/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
     # we can access an image by saying 'IMAGES['wp']'
 
 '''
@@ -96,7 +96,7 @@ def drawGameState(screen, gs, validMoves, sqSelected):
     drawPieces(screen, gs.board) #draw pieces on top of those squares
 
 def drawBoard(screen):
-    colors = [p.Color("white"), p.Color("gray")]
+    colors = [p.Color("burlywood"), p.Color("burlywood4")]
     for r in range(DIMENSION):
         for c in range(DIMENSION):
             color = colors[((r+c) % 2)]
