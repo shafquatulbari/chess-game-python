@@ -41,27 +41,7 @@ def main():
             #mouse handler
             elif e.type == p.MOUSEBUTTONDOWN:
                 if not gameOver:
-                    location = p.mouse.get_pos() #(x, y) location of the mouse
-                    col = location[0]//SQ_SIZE
-                    row = location[1]//SQ_SIZE
-                    if sqSelected == (row, col): #the user clicked the same square twice
-                        sqSelected = () #deselect
-                        playerClicks = [] #clear player clicks
-                    else:
-                        sqSelected = (row, col)
-                        playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
-                    if len(playerClicks) == 2: #after 2nd click
-                        move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
-                        print(move.getChessNotation())
-                        for i in range(len(validMoves)):
-                            if move == validMoves[i]:
-                                gs.makeMove(validMoves[i])
-                                moveMade = True
-                                animate = True
-                                sqSelected = () #reset user clicks
-                                playerClicks = []
-                        if not moveMade: #if the move is not valid
-                            playerClicks = [sqSelected] #only one click, keep the latest one
+                    sqSelected, playerClicks, moveMade, animate = handleMouseClick(e, sqSelected, playerClicks, gs, validMoves)
             elif e.type == p.KEYDOWN:
                 if e.key == p.K_z: #undo when 'z' is pressed
                     gs.undoMove() #undo the last move
@@ -178,6 +158,35 @@ def drawText(screen, text):
     screen.blit(textObject, textLocation)
     textObject = font.render(text, 0, p.Color('Black'))
     screen.blit(textObject, textLocation.move(2, 2))
+
+
+'''
+Handling mouse clicks/user input
+'''
+def handleMouseClick(e, sqSelected, playerClicks, gs, validMoves):
+    location = p.mouse.get_pos() #(x, y) location of the mouse
+    col = location[0]//SQ_SIZE
+    row = location[1]//SQ_SIZE
+    if sqSelected == (row, col): #the user clicked the same square twice
+        sqSelected = () #deselect
+        playerClicks = [] #clear player clicks
+    else:
+        sqSelected = (row, col)
+        playerClicks.append(sqSelected) #append for both 1st and 2nd clicks
+    moveMade = False
+    animate = False
+    if len(playerClicks) == 2: #after 2nd click
+        move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
+        for i in range(len(validMoves)):
+            if move == validMoves[i]:
+                gs.makeMove(validMoves[i])
+                moveMade = True
+                animate = True
+                sqSelected = () #reset user clicks
+                playerClicks = []
+            if not moveMade: #if the move is not valid
+                playerClicks = [sqSelected] #only one click, keep the latest one
+    return sqSelected, playerClicks, moveMade, animate
 
 if __name__ == "__main__":
     main()
