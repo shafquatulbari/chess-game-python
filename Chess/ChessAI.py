@@ -11,25 +11,36 @@ def findRandomMove(validMoves):
     return validMoves[random.randint(0, len(validMoves)-1)] #return a random move
 
 '''
-Find the best move based on material alone
+Find the best move for the current player utilizing the minimax algorithm
 '''
 def findBestMove(gs, validMoves):
     turnMultiplier = 1 if gs.whiteToMove else -1 #if it is white's turn, then the multiplier is 1, if it is black
-    maxScore = -CHECKMATE #initialize maxScore to the lowest possible score
-    bestMove = None
+    # we are trying to minimize our opponent's best move, that is minimize their max score
+    opponentMinMaxScore = CHECKMATE #initialize the opponent's minmax score to the highest possible score
+    bestPlayerMove = None #initialize the best player move to None
+    random.shuffle(validMoves) #shuffle the valid moves to randomize the order of the moves to prevent the AI from making the same moves every time
+    #we are looking 2 moves ahead, so we need to iterate through the valid moves twice
     for playerMove in validMoves: #iterate through the valid moves
         gs.makeMove(playerMove) #make the move
-        if gs.checkMate: #if the move results in a checkmate
-            score = CHECKMATE #score the move based on the checkmate score
-        elif gs.staleMate: #if the move results in a stalemate
-            score = STALEMATE #score the move based on the stalemate score
-        else:
-            score = turnMultiplier * scoreMaterial(gs.board) #score the board based on material and whose turn it is
-        if(score > maxScore): #based on maximizing the score, if the score is greater than the maxScore, then update the maxScore and bestMove
-            score = maxScore
-            bestMove = playerMove
+        opponentsMoves = gs.getValidMoves() #get the valid moves for the opponent
+        opponentMaxScore = -CHECKMATE #initialize the opponent's max score to the lowest possible score
+        #finds the best move for the opponent and highest score they can get
+        for opponentsMove in opponentsMoves:
+            gs.makeMove(opponentsMove)
+            if gs.checkMate: #if the move results in a checkmate
+                score = -turnMultiplier * CHECKMATE #score the move based on the checkmate score
+            elif gs.staleMate: #if the move results in a stalemate
+                score = STALEMATE #score the move based on the stalemate score
+            else:
+                score = -turnMultiplier * scoreMaterial(gs.board) #score the board based on material and whose turn it is
+            if score > opponentMaxScore: #based on maximizing the score, if the score is greater than the maxScore, then update the maxScore and bestMove
+                opponentMaxScore = score
+            gs.undoMove() #undo the move, because we are only evaluating the move, not actually making it
+        if opponentMaxScore < opponentMinMaxScore: #based on minimizing the opponent's best move, if the opponent's max score is less than the opponent's minmax score, then update the opponent's minmax score and the best player move
+            opponentMinMaxScore = opponentMaxScore
+            bestPlayerMove = playerMove
         gs.undoMove() #undo the move, because we are only evaluating the move, not actually making it
-    return bestMove
+    return bestPlayerMove
 
 '''
 Score the board based on material
