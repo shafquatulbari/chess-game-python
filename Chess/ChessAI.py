@@ -13,7 +13,7 @@ def findRandomMove(validMoves):
 '''
 Find the best move for the current player without recursively looking ahead
 '''
-def findBestMove(gs, validMoves):
+def findBestMoveMinMaxNoRecursion(gs, validMoves): #depth is 2
     turnMultiplier = 1 if gs.whiteToMove else -1 #if it is white's turn, then the multiplier is 1, if it is black
     # we are trying to minimize our opponent's best move, that is minimize their max score
     opponentMinMaxScore = CHECKMATE #initialize the opponent's minmax score to the highest possible score
@@ -51,10 +51,12 @@ def findBestMove(gs, validMoves):
 '''
 helper method to make the first recursive call
 '''
-def findBestMoveMinMax(gs, validMoves):
+def findBestMove(gs, validMoves):
     global nextMove
     nextMove = None 
-    findMoveMinMax(gs, validMoves, DEPTH, gs.whiteToMove)
+    random.shuffle(validMoves) #shuffle the valid moves to randomize the order of the moves to prevent the AI from making the same moves every time
+    #findMoveMinMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1) #call the recursive function to find the best move
+    findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH,-CHECKMATE,CHECKMATE, 1 if gs.whiteToMove else -1) #call the recursive function to find the best move, instead of the function findMoveMinMax
     return nextMove
 
 '''
@@ -88,7 +90,51 @@ def findMoveMinMax(gs, validMoves, depth, whiteToMove):
                     nextMove = move
             gs.undoMove() #undo the move, because we are only evaluating the move, not actually making it
         return minScore
+
+'''
+This is just shorter to write than findMoveMinMax, but it is the same thing
+'''
+def findMoveNegaMax(gs, validMoves, depth, turnMultiplier):
+    global nextMove
+    if depth == 0: #if we have reached the depth limit
+        return turnMultiplier * scoreBoard(gs) #return the score of the board
+    maxScore = -CHECKMATE
+    for move in validMoves:
+        gs.makeMove(move)  
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMax(gs, nextMoves, depth-1, -turnMultiplier) #negative because we are looking at the opponent's score, whatever is best score for opponent is worst score for us
+        if score > maxScore: #based on maximizing the score, if the score is greater than the maxScore, then update the maxScore and the nextMove
+            maxScore = score
+            if depth == DEPTH: 
+                nextMove = move
+        gs.undoMove() 
+    return maxScore
+
+'''
+Recursive function to find the best move for the current player utilizing MinMax with Alpha Beta Pruning
+'''
+def findMoveNegaMaxAlphaBeta(gs, validMoves, depth, alpha, beta, turnMultiplier): #alpha is the best score that the maximizing player can guarantee at that level or above, beta is the best score that the minimizing player can guarantee at that level or above
+    global nextMove
+    if depth == 0: #if we have reached the depth limit
+        return turnMultiplier * scoreBoard(gs) #return the score of the board
     
+    #move ordering - implement later 
+    maxScore = -CHECKMATE
+    for move in validMoves:
+        gs.makeMove(move)  
+        nextMoves = gs.getValidMoves()
+        score = -findMoveNegaMaxAlphaBeta(gs, nextMoves, depth-1, -beta, -alpha, -turnMultiplier) #negative because we are looking at the opponent's score, whatever is best score for opponent is worst score for us
+        if score > maxScore: #based on maximizing the score, if the score is greater than the maxScore, then update the maxScore and the nextMove
+            maxScore = score
+            if depth == DEPTH: 
+                nextMove = move
+        gs.undoMove() 
+        #alpha beta pruning
+        if maxScore > alpha: #if the maximizing player has found a move that is better than the best move the minimizing player has available, then update the best move the minimizing player has available
+            alpha = maxScore
+        if alpha >= beta: #if the maximizing player has found a move that is as good as or better than the best move the minimizing player has available, then break
+            break #we won't look at any more moves  
+    return maxScore  
 '''
 Score the board based on the game state, a positive score is good for white, a negative score is good for black
 '''
