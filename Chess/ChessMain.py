@@ -34,7 +34,7 @@ def main():
     sqSelected = () #no square is selected, keep track of the last click of the user (tuple: (row, col))
     playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4, 4)])
     gameOver = False #flag variable for when the game is over
-    playerOne = True #if a human is playing white, then this will be True, if an AI is playing then it will be False
+    playerOne = False #if a human is playing white, then this will be True, if an AI is playing then it will be False
     playerTwo = False #if a human is playing black, then this will be True, if an AI is playing then it will be False
     while running:
         humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
@@ -50,6 +50,7 @@ def main():
                     gs.undoMove() #undo the last move
                     moveMade = True
                     animate = False
+                    gameOver = False
                 if e.key == p.K_r: #reset the board when 'r' is pressed
                     gs = ChessEngine.GameState() #reset the game state, instantiate a new game state
                     validMoves = gs.getValidMoves() #get the valid moves for the new game state
@@ -57,10 +58,11 @@ def main():
                     playerClicks = [] #clear player clicks
                     moveMade = False
                     animate = False
+                    gameOver = False
 
         #AI move finder logic
         if not gameOver and not humanTurn:
-            AIMove = ChessAI.findBestMove(gs, validMoves)
+            AIMove = ChessAI.findBestMoveMinMax(gs, validMoves)
             if AIMove is None: 
                 AIMove = ChessAI.findRandomMove(validMoves) #if the AI cannot find the best move, then make a random move 
             gs.makeMove(AIMove)
@@ -75,6 +77,7 @@ def main():
             animate = False
 
         drawGameState(screen, gs, validMoves, sqSelected)
+
         if gs.checkMate:
             gameOver = True
             if gs.whiteToMove:
@@ -84,6 +87,7 @@ def main():
         elif gs.staleMate:
             gameOver = True
             drawText(screen, 'Stalemate')
+
         clock.tick(MAX_FPS)
         p.display.flip()
 
