@@ -81,13 +81,13 @@ def findBestMoveMinMaxNoRecursion(gs, validMoves): #depth is 2
 '''
 helper method to make the first recursive call
 '''
-def findBestMove(gs, validMoves):
+def findBestMove(gs, validMoves, returnQueue):
     global nextMove
     nextMove = None 
     random.shuffle(validMoves) #shuffle the valid moves to randomize the order of the moves to prevent the AI from making the same moves every time
     #findMoveMinMax(gs, validMoves, DEPTH, 1 if gs.whiteToMove else -1) #call the recursive function to find the best move
     findMoveNegaMaxAlphaBeta(gs, validMoves, DEPTH,-CHECKMATE,CHECKMATE, 1 if gs.whiteToMove else -1) #call the recursive function to find the best move, instead of the function findMoveMinMax
-    return nextMove
+    returnQueue.put(nextMove) #put the best move in the queue
 
 '''
 Recursive function to find the best move for the current player utilizing MinMax
