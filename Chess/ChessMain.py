@@ -17,73 +17,247 @@ def loadImages():
         IMAGES[piece] = p.transform.scale(p.image.load("Chess/images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
     # we can access an image by saying 'IMAGES['wp']'
 
+# creates a button on the screen
+def create_button(screen, text, rect, hover=False):
+    font = p.font.SysFont("Helvetica", 32)
+    color = p.Color("DarkGray") if hover else p.Color("Gray")
+    p.draw.rect(screen, color, rect)
+    p.draw.rect(screen, p.Color("Black"), rect, 2)  # Border
+    button_text = font.render(text, True, p.Color("Black"))
+    text_rect = button_text.get_rect(center=rect.center)
+    screen.blit(button_text, text_rect)
+
+def create_back_button(screen):
+    back_button_rect = p.Rect(10, 10, 100, 40)
+    create_button(screen, "Back", back_button_rect)
+    return back_button_rect
+
+# Display the difficulty menu screen
+def displayDifficultyMenu():
+    screen = p.display.set_mode((WIDTH, HEIGHT))
+    p.display.set_caption('Select Difficulty')
+    
+    # Load the background image
+    background_image = p.image.load("Chess/images/menu.png")
+    background_image = p.transform.scale(background_image, (WIDTH, HEIGHT))
+    
+    button_easy_rect = p.Rect(WIDTH//2 - 150, HEIGHT//3 - 25, 300, 50)
+    button_medium_rect = p.Rect(WIDTH//2 - 150, HEIGHT//2 - 25, 300, 50)
+    button_hard_rect = p.Rect(WIDTH//2 - 150, HEIGHT*2//3 - 25, 300, 50)
+    
+    while True:
+        screen.blit(background_image, (0, 0))
+        
+        mouse_pos = p.mouse.get_pos()
+        
+        back_button_rect = create_back_button(screen)
+        
+        create_button(screen, "Easy", button_easy_rect, button_easy_rect.collidepoint(mouse_pos))
+        create_button(screen, "Medium", button_medium_rect, button_medium_rect.collidepoint(mouse_pos))
+        create_button(screen, "Hard", button_hard_rect, button_hard_rect.collidepoint(mouse_pos))
+        
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                return "quit"
+            elif event.type == p.MOUSEBUTTONDOWN:
+                if button_easy_rect.collidepoint(event.pos):
+                    return "easy"
+                elif button_medium_rect.collidepoint(event.pos):
+                    return "medium"
+                elif button_hard_rect.collidepoint(event.pos):
+                    return "hard"
+                elif back_button_rect.collidepoint(event.pos):
+                    return "back"
+        
+        p.display.flip()
+
+
+
+# Display the menu screen
+def displayMenu():
+    p.init()
+    screen = p.display.set_mode((WIDTH, HEIGHT))
+    p.display.set_caption('Chess Menu')
+    
+    # Load the background image
+    background_image = p.image.load("Chess/images/menu.png")
+    background_image = p.transform.scale(background_image, (WIDTH, HEIGHT))
+    
+    button_1v1_computer_rect = p.Rect(WIDTH//2 - 150, HEIGHT//3 - 25, 300, 50)
+    button_1v1_human_rect = p.Rect(WIDTH//2 - 150, HEIGHT//2 - 25, 300, 50)
+    button_quit_rect = p.Rect(WIDTH//2 - 150, HEIGHT*2//3 - 25, 300, 50)
+    
+    while True:
+        screen.blit(background_image, (0, 0))
+        
+        mouse_pos = p.mouse.get_pos()
+        
+        create_button(screen, "Play 1v1 (Computer)", button_1v1_computer_rect, button_1v1_computer_rect.collidepoint(mouse_pos))
+        create_button(screen, "Play 1v1 (Human)", button_1v1_human_rect, button_1v1_human_rect.collidepoint(mouse_pos))
+        create_button(screen, "Quit/Exit", button_quit_rect, button_quit_rect.collidepoint(mouse_pos))
+        
+        # Display "Created by Shafquat" text
+        font = p.font.SysFont("Helvetica", 20)
+        created_by_text = font.render("Created by Shafquat", True, p.Color("White"))
+        screen.blit(created_by_text, (WIDTH - created_by_text.get_width() - 10, HEIGHT - created_by_text.get_height() - 10))
+        
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                return "quit"
+            elif event.type == p.MOUSEBUTTONDOWN:
+                if button_1v1_computer_rect.collidepoint(event.pos):
+                    return "computer"
+                elif button_1v1_human_rect.collidepoint(event.pos):
+                    return "human"
+                elif button_quit_rect.collidepoint(event.pos):
+                    p.quit()
+                    return "quit"
+        
+        p.display.flip()
+
+# Display the difficulty menu screen
+def displayPauseMenu():
+    screen = p.display.set_mode((WIDTH, HEIGHT))
+    p.display.set_caption('Pause Menu')
+    
+    # Load the background image
+    background_image = p.image.load("Chess/images/menu.png")
+    background_image = p.transform.scale(background_image, (WIDTH, HEIGHT))
+    
+    button_resume_rect = p.Rect(WIDTH//2 - 150, HEIGHT//3 - 25, 300, 50)
+    button_main_menu_rect = p.Rect(WIDTH//2 - 150, HEIGHT//2 - 25, 300, 50)
+    button_quit_rect = p.Rect(WIDTH//2 - 150, HEIGHT*2//3 - 25, 300, 50)
+    
+    while True:
+        screen.blit(background_image, (0, 0))
+        
+        mouse_pos = p.mouse.get_pos()
+        
+        create_button(screen, "Resume", button_resume_rect, button_resume_rect.collidepoint(mouse_pos))
+        create_button(screen, "Main Menu", button_main_menu_rect, button_main_menu_rect.collidepoint(mouse_pos))
+        create_button(screen, "Quit", button_quit_rect, button_quit_rect.collidepoint(mouse_pos))
+        
+        for event in p.event.get():
+            if event.type == p.QUIT:
+                p.quit()
+                return "quit"
+            elif event.type == p.MOUSEBUTTONDOWN:
+                if button_resume_rect.collidepoint(event.pos):
+                    return "resume"
+                elif button_main_menu_rect.collidepoint(event.pos):
+                    return "main_menu"
+                elif button_quit_rect.collidepoint(event.pos):
+                    return "quit"
+        
+        p.display.flip()
+
+
+
 '''
 The main driver for our code. This will handle user input and updating the graphics
 '''
 def main():
-    p.init()
-    screen = p.display.set_mode((WIDTH, HEIGHT))
-    clock = p.time.Clock()
-    screen.fill(p.Color("white"))
-    gs = ChessEngine.GameState()
-    validMoves = gs.getValidMoves()
-    moveMade = False #flag variable for when a move is made
-    animate = False #flag variable for when we should animate a move
-    loadImages() #only do this once, before the while loop
-    running = True
-    sqSelected = () #no square is selected, keep track of the last click of the user (tuple: (row, col))
-    playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4, 4)])
-    gameOver = False #flag variable for when the game is over
-    playerOne = True #if a human is playing white, then this will be True, if an AI is playing then it will be False
-    playerTwo = False #if a human is playing black, then this will be True, if an AI is playing then it will be False
-    while running:
-        humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
-        for e in p.event.get():
-            if e.type == p.QUIT:
-                running = False
-            #mouse handler
-            elif e.type == p.MOUSEBUTTONDOWN:
-                if not gameOver and humanTurn:
-                    sqSelected, playerClicks, moveMade, animate = handleMouseClick(e, sqSelected, playerClicks, gs, validMoves)
-            elif e.type == p.KEYDOWN:
-                if e.key == p.K_z: #undo when 'z' is pressed
-                    gs.undoMove() #undo the last move
-                    moveMade = True
-                    animate = False
-                    gameOver = False
-                if e.key == p.K_r: #reset the board when 'r' is pressed
-                    gs = ChessEngine.GameState() #reset the game state, instantiate a new game state
-                    validMoves = gs.getValidMoves() #get the valid moves for the new game state
-                    sqSelected = () #reset the square selected
-                    playerClicks = [] #clear player clicks
-                    moveMade = False
-                    animate = False
-                    gameOver = False
+    while True:
+        choice = displayMenu()
+        if choice == "quit":
+            return
+        elif choice == "computer":
+            difficulty = None
+            while not difficulty:
+                difficulty = displayDifficultyMenu()
+                if difficulty == "back":
+                    choice = "back"
+                    break
+                elif difficulty == "quit":
+                    return
+                elif difficulty == "easy":
+                    ChessAI.DEPTH = 1
+                elif difficulty == "medium":
+                    ChessAI.DEPTH = 2
+                elif difficulty == "hard":
+                    ChessAI.DEPTH = 3
+            if choice == "back":
+                continue
+            playerOne = True
+            playerTwo = False
+        elif choice == "human":
+            playerOne = True
+            playerTwo = True
 
-        #AI move finder logic
-        if not gameOver and not humanTurn:
-            AIMove = ChessAI.findBestMove(gs, validMoves)
-            if AIMove is None: 
-                AIMove = ChessAI.findRandomMove(validMoves) #if the AI cannot find the best move, then make a random move 
-            gs.makeMove(AIMove)
-            moveMade = True
-            animate = True
+        p.init()
+        screen = p.display.set_mode((WIDTH, HEIGHT))
+        clock = p.time.Clock()
+        screen.fill(p.Color("white"))
+        gs = ChessEngine.GameState()
+        validMoves = gs.getValidMoves()
+        moveMade = False #flag variable for when a move is made
+        animate = False #flag variable for when we should animate a move
+        loadImages() #only do this once, before the while loop
+        running = True
+        sqSelected = () #no square is selected, keep track of the last click of the user (tuple: (row, col))
+        playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4, 4)])
+        gameOver = False #flag variable for when the game is over
 
-        if moveMade:
-            if animate:
-                animateMove(gs.moveLog[-1], screen, gs.board, clock) #animate the last move made
-            validMoves = gs.getValidMoves()
-            moveMade = False
-            animate = False
+        while running:
+            humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
+            for e in p.event.get():
+                if e.type == p.QUIT:
+                    running = False
+                #mouse handler
+                elif e.type == p.MOUSEBUTTONDOWN:
+                    if not gameOver and humanTurn:
+                        sqSelected, playerClicks, moveMade, animate = handleMouseClick(e, sqSelected, playerClicks, gs, validMoves)
+                elif e.type == p.KEYDOWN:
+                    if e.key == p.K_z: #undo when 'z' is pressed
+                        gs.undoMove() #undo the last move
+                        moveMade = True
+                        animate = False
+                        gameOver = False
+                    if e.key == p.K_r: #reset the board when 'r' is pressed
+                        gs = ChessEngine.GameState() #reset the game state, instantiate a new game state
+                        validMoves = gs.getValidMoves() #get the valid moves for the new game state
+                        sqSelected = () #reset the square selected
+                        playerClicks = [] #clear player clicks
+                        moveMade = False
+                        animate = False
+                        gameOver = False
+                    if e.key == p.K_ESCAPE: #pause the game when 'escape' is pressed
+                        pause_choice = displayPauseMenu()
+                        if pause_choice == "quit":
+                            return
+                        elif pause_choice == "main_menu":
+                            running = False  # Exit the game loop to restart main menu
+                        elif pause_choice == "resume":
+                            continue  # resume the game
 
-        drawGameState(screen, gs, validMoves, sqSelected)
+            #AI move finder logic
+            if not gameOver and not humanTurn:
+                AIMove = ChessAI.findBestMove(gs, validMoves)
+                if AIMove is None: 
+                    AIMove = ChessAI.findRandomMove(validMoves) #if the AI cannot find the best move, then make a random move 
+                gs.makeMove(AIMove)
+                moveMade = True
+                animate = True
 
-        if gs.checkMate or gs.staleMate: 
-            gameOver = True #the game is over
-            text = 'Stalemate' if gs.staleMate else 'Black wins by checkmate' if gs.whiteToMove else 'White wins by checkmate' #if the game is over, then display the appropriate text
-            drawText(screen, text) 
-        clock.tick(MAX_FPS)
-        p.display.flip()
+            if moveMade:
+                if animate:
+                    animateMove(gs.moveLog[-1], screen, gs.board, clock) #animate the last move made
+                validMoves = gs.getValidMoves()
+                moveMade = False
+                animate = False
+
+            drawGameState(screen, gs, validMoves, sqSelected)
+
+            if gs.checkMate or gs.staleMate: 
+                gameOver = True #the game is over
+                text = 'Stalemate' if gs.staleMate else 'Black wins by checkmate' if gs.whiteToMove else 'White wins by checkmate' #if the game is over, then display the appropriate text
+                drawText(screen, text) 
+            clock.tick(MAX_FPS)
+            p.display.flip()
+
+
 
 '''
 Highlight square selected and moves for piece selected
