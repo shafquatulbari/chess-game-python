@@ -6,6 +6,16 @@ SQ_SIZE = HEIGHT // DIMENSION
 MAX_FPS = 15 #for animations later on
 IMAGES = {}
 
+# Initialize the Pygame mixer
+p.mixer.init()
+
+# Load sound effects
+click_sound = p.mixer.Sound("Chess/sounds/capture.mp3")
+
+# Load and play background music
+p.mixer.music.load("Chess/sounds/menu.mp3")
+p.mixer.music.play(-1)  # Loop the music
+
 # this class is responsible for storing all the information about the current state of a chess game. It will also be responsible for determining the valid moves at the current state. It will also keep a move log.
 
 '''
@@ -16,6 +26,7 @@ def loadImages():
     for piece in pieces:
         IMAGES[piece] = p.transform.scale(p.image.load("Chess/images/" + piece + ".png"), (SQ_SIZE, SQ_SIZE))
     # we can access an image by saying 'IMAGES['wp']'
+
 
 # creates a button on the screen
 def create_button(screen, text, rect, hover=False):
@@ -62,12 +73,16 @@ def displayDifficultyMenu():
                 return "quit"
             elif event.type == p.MOUSEBUTTONDOWN:
                 if button_easy_rect.collidepoint(event.pos):
+                    click_sound.play()
                     return "easy"
                 elif button_medium_rect.collidepoint(event.pos):
+                    click_sound.play()
                     return "medium"
                 elif button_hard_rect.collidepoint(event.pos):
+                    click_sound.play()
                     return "hard"
                 elif back_button_rect.collidepoint(event.pos):
+                    click_sound.play()
                     return "back"
         
         p.display.flip()
@@ -108,10 +123,13 @@ def displayMenu():
                 return "quit"
             elif event.type == p.MOUSEBUTTONDOWN:
                 if button_1v1_computer_rect.collidepoint(event.pos):
+                    click_sound.play()
                     return "computer"
                 elif button_1v1_human_rect.collidepoint(event.pos):
+                    click_sound.play()
                     return "human"
                 elif button_quit_rect.collidepoint(event.pos):
+                    click_sound.play()
                     p.quit()
                     return "quit"
         
@@ -145,10 +163,13 @@ def displayPauseMenu():
                 return "quit"
             elif event.type == p.MOUSEBUTTONDOWN:
                 if button_resume_rect.collidepoint(event.pos):
+                    click_sound.play()
                     return "resume"
                 elif button_main_menu_rect.collidepoint(event.pos):
+                    click_sound.play()
                     return "main_menu"
                 elif button_quit_rect.collidepoint(event.pos):
+                    click_sound.play()
                     return "quit"
         
         p.display.flip()
@@ -242,6 +263,7 @@ def main():
                 animate = True
 
             if moveMade:
+                click_sound.play()
                 if animate:
                     animateMove(gs.moveLog[-1], screen, gs.board, clock) #animate the last move made
                 validMoves = gs.getValidMoves()
@@ -372,6 +394,7 @@ def handleMouseClick(e, sqSelected, playerClicks, gs, validMoves):
                 animate = True
                 sqSelected = () #reset user clicks
                 playerClicks = []
+                
             if not moveMade: #if the move is not valid
                 playerClicks = [sqSelected] #only one click, keep the latest one
     return sqSelected, playerClicks, moveMade, animate

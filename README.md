@@ -37,7 +37,10 @@ This chess game project demonstrates proficiency in Python programming, game dev
 
 ---
 
-
-##
+## Assets
 
 - https://joszs.itch.io/chess-pack
+- Menu screen wallpaper AI generated with chatgpt.com
+- Sound effect 1: http://images.chesscomfiles.com/chess-themes/sounds/_MP3_/default/capture.mp3
+
+- Waltz in a Minor - Chopin (Classical Piano): https://pixabay.com/music/search/classical/
