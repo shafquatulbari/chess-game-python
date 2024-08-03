@@ -24,9 +24,11 @@ class GameState():
         self.checkMate = False
         self.staleMate = False
         self.enpassantPossible = () #coordinates for the square where en-passant capture is possible
+        self.enpassantPossibleLog = [self.enpassantPossible]
         self.currentCastlingRight = CastleRight(True, True, True, True) #initialize the castling rights
         self.castleRightsLog = [CastleRight(self.currentCastlingRight.wks, self.currentCastlingRight.bks, 
                                            self.currentCastlingRight.wqs, self.currentCastlingRight.bqs)]
+        
 
     
     '''
@@ -61,6 +63,9 @@ class GameState():
             else: #queenside castle
                 self.board[move.endRow][move.endCol+1] = self.board[move.endRow][move.endCol-2]
                 self.board[move.endRow][move.endCol-2] = "--"  #erase the rook from the old square
+
+        self.enpassantPossibleLog.append(self.enpassantPossible) #update the enpassantPossibleLog
+
         #update castling rights - whenever it is a rook or a king move
         self.updateCastleRights(move)
         self.castleRightsLog.append(CastleRight(self.currentCastlingRight.wks, self.currentCastlingRight.bks, 
@@ -84,12 +89,10 @@ class GameState():
             if move.isEnpassantMove:
                 self.board[move.endRow][move.endCol] = "--" #leave landing square blank
                 self.board[move.startRow][move.endCol] = move.pieceCaptured #put the enemy pawn back
-                self.enpassantPossible = (move.endRow, move.endCol) #set the enpassantPossible to the square where the pawn was captured
-            #undo a 2 square pawn advance
-            if move.pieceMoved[1] == 'p' and abs(move.startRow - move.endRow) == 2:
-                self.enpassantPossible = ()
-            else:
-                self.enpassantPossible = move.endRow, move.endCol
+            
+            self.enpassantPossibleLog.pop() #get rid of the new enpassant rights from the move we are undoing
+            self.enpassantPossible = self.enpassantPossibleLog[-1] #set the current enpassant rights to the last one in the list
+
             #undo castling rights
             self.castleRightsLog.pop() #get rid of the new castle rights from the move we are undoing
             newRights = self.castleRightsLog[-1] #set the current castling rights to the last one in the list

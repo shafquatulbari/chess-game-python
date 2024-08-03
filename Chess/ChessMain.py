@@ -78,16 +78,10 @@ def main():
 
         drawGameState(screen, gs, validMoves, sqSelected)
 
-        if gs.checkMate:
-            gameOver = True
-            if gs.whiteToMove:
-                drawText(screen, 'Black wins by checkmate')
-            else:
-                drawText(screen, 'White wins by checkmate')
-        elif gs.staleMate:
-            gameOver = True
-            drawText(screen, 'Stalemate')
-
+        if gs.checkMate or gs.staleMate: 
+            gameOver = True #the game is over
+            text = 'Stalemate' if gs.staleMate else 'Black wins by checkmate' if gs.whiteToMove else 'White wins by checkmate' #if the game is over, then display the appropriate text
+            drawText(screen, text) 
         clock.tick(MAX_FPS)
         p.display.flip()
 
@@ -158,9 +152,13 @@ def animateMove(move, screen, board, clock):
         p.draw.rect(screen, color, endSquare) #draw a rectangle on the end square
         #draw captured piece onto rectangle
         if move.pieceCaptured != '--':
-            screen.blit(IMAGES[move.pieceCaptured], endSquare) #draw the captured piece on the end square
+            if move.isEnpassantMove: #if it is an en passant move
+                enPassantRow = (move.endRow + 1) if move.pieceCaptured[0] == 'b' else move.endRow - 1 #if it is an en passant move, then the captured piece is not on the end square, but on the square behind the pawn
+                endSquare = p.Rect(move.endCol*SQ_SIZE, enPassantRow*SQ_SIZE, SQ_SIZE, SQ_SIZE) 
+            screen.blit(IMAGES[move.pieceCaptured], endSquare) 
         #draw moving piece
-        screen.blit(IMAGES[move.pieceMoved], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))  
+        if move.pieceMoved != '--':
+            screen.blit(IMAGES[move.pieceMoved], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))  
         p.display.flip() #update the screen for each frame
         clock.tick(60) #speed of the animation, 60 frames per second
 
@@ -183,7 +181,7 @@ def handleMouseClick(e, sqSelected, playerClicks, gs, validMoves):
     location = p.mouse.get_pos() #(x, y) location of the mouse
     col = location[0]//SQ_SIZE
     row = location[1]//SQ_SIZE
-    if sqSelected == (row, col): #the user clicked the same square twice
+    if sqSelected == (row, col) or col >= 8: #the user clicked the same square twice or the user clicked outside the board
         sqSelected = () #deselect
         playerClicks = [] #clear player clicks
     else:
