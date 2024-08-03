@@ -1,6 +1,36 @@
 import random
 
 pieceScore = {"K": 0, "Q": 10, "R": 5, "B": 3, "N": 3, "p": 1} #dictionary to store the value of each piece
+
+knightScores = [[1, 1, 1, 1, 1, 1, 1, 1],
+                [1, 2, 2, 2, 2, 2, 2, 1],
+                [1, 2, 3, 3, 3, 3, 2, 1],
+                [1, 2, 3, 4, 4, 3, 2, 1],
+                [1, 2, 3, 4, 4, 3, 2, 1],
+                [1, 2, 3, 3, 3, 3, 2, 1],
+                [1, 2, 2, 2, 2, 2, 2, 1],
+                [1, 1, 1, 1, 1, 1, 1, 1]]
+
+bishopScores = [[4, 3, 2, 1, 1, 2, 3, 4],
+                [3, 4, 3, 2, 2, 3, 4, 3],
+                [2, 3, 4, 3, 3, 4, 3, 2],
+                [1, 2, 3, 4, 4, 3, 2, 1],
+                [1, 2, 3, 4, 4, 3, 2, 1],
+                [2, 3, 4, 3, 3, 4, 3, 2],
+                [3, 4, 3, 2, 2, 3, 4, 3],
+                [4, 3, 2, 1, 1, 2, 3, 4]]
+
+rookScores = [[4, 3, 4, 4, 4, 4, 3, 4],
+                [4, 4, 4, 4, 4, 4, 4, 4],
+                [1, 1, 2, 3, 3, 2, 1, 1],
+                [1, 2, 3, 4, 4, 3, 2, 1],
+                [1, 2, 3, 4, 4, 3, 2, 1],
+                [1, 1, 2, 3, 3, 2, 1, 1],
+                [4, 4, 4, 4, 4, 4, 4, 4],
+                [4, 3, 4, 4, 4, 4, 3, 4]]
+
+piecePositionScores = {"N": knightScores , "B": bishopScores, "R": rookScores} #dictionary to store the positional score of each piece
+
 CHECKMATE = 1000 #checkmate score, highest possible score 
 STALEMATE = 0 #stalemate score, lowest possible score
 DEPTH = 3 #depth of the recursive function, if you have difficulty settings, you can change this value
@@ -155,10 +185,21 @@ Score the board based on material
 '''
 def scoreMaterial(board):
     score = 0 
-    for row in board: #iterate through the board
-        for square in row: #iterate through the squares
-            if square[0] == 'w': #if the piece is white
-                score += pieceScore[square[1]] #add the value of the piece to the score
-            elif square[0] == 'b': #if the piece is black
-                score -= pieceScore[square[1]] #subtract the value of the piece from the score
+    for row in range(len(board)): #iterate through the rows
+        for col in range(len(board[row])): #iterate through the columns
+            square = board[row][col]
+            if square != "--": #if the square is not empty
+                #score it positionally
+                piecePositionScore = 0
+                if square[1] in piecePositionScores:
+                    if square[1] == "N":
+                        piecePositionScore = piecePositionScores[square[1]][row][col] * .1
+                    elif square[1] == "B":
+                        piecePositionScore = piecePositionScores[square[1]][row][col] * .1
+                    elif square[1] == "R":
+                        piecePositionScore = piecePositionScores[square[1]][row][col] * .1
+                if square[0] == 'w': #if the piece is white
+                    score += pieceScore[square[1]] + piecePositionScore * .1 #add the value of the piece to the score
+                elif square[0] == 'b': #if the piece is black
+                    score -= pieceScore[square[1]] + piecePositionScore * .1 #subtract the value of the piece from the score
     return score
