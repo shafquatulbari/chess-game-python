@@ -1,5 +1,6 @@
 import pygame as p
 import ChessEngine, ChessAI
+import asyncio
 
 WIDTH = HEIGHT = 680 #400 is another option
 DIMENSION = 8  #dimensions of a chess board are 8x8
@@ -45,7 +46,7 @@ def create_back_button(screen):
     return back_button_rect
 
 # Display the difficulty menu screen
-def displayDifficultyMenu():
+async def displayDifficultyMenu():
     screen = p.display.set_mode((WIDTH, HEIGHT))
     p.display.set_caption('Select Difficulty')
     
@@ -87,9 +88,12 @@ def displayDifficultyMenu():
                     return "back"
         
         p.display.flip()
+        await asyncio.sleep(0)
+
+
 
 # Display the menu screen
-def displayMenu():
+async def displayMenu():
     p.init()
     screen = p.display.set_mode((WIDTH, HEIGHT))
     p.display.set_caption('Chess Menu')
@@ -133,6 +137,7 @@ def displayMenu():
                     return "quit"
         
         p.display.flip()
+        await asyncio.sleep(0)
 
 # Display the difficulty menu screen
 async def displayPauseMenu():
@@ -172,31 +177,35 @@ async def displayPauseMenu():
                     return "quit"
         
         p.display.flip()
+        await asyncio.sleep(0)
+
 
 
 '''
 The main driver for our code. This will handle user input and updating the graphics
 '''
-def main():
+async def main():
     while True:
-        choice = displayMenu()
+        choice = await displayMenu()
         if choice == "quit":
             return
         elif choice == "computer":
             difficulty = None
             while not difficulty:
-                difficulty = displayDifficultyMenu()
+                difficulty = await displayDifficultyMenu()
                 if difficulty == "back":
                     choice = "back"
                     break
                 elif difficulty == "quit":
                     return
-                elif difficulty == "easy":
-                    ChessAI.DEPTH = 1
-                elif difficulty == "medium":
-                    ChessAI.DEPTH = 2
-                elif difficulty == "hard":
-                    ChessAI.DEPTH = 3
+                elif difficulty in ["easy", "medium", "hard"]:
+                    if difficulty == "easy":
+                        ChessAI.DEPTH = 1
+                    elif difficulty == "medium":
+                        ChessAI.DEPTH = 2
+                    elif difficulty == "hard":
+                        ChessAI.DEPTH = 3
+                    break  # Exit the while loop when difficulty is set
             if choice == "back":
                 continue
             playerOne = True
@@ -205,79 +214,80 @@ def main():
             playerOne = True
             playerTwo = True
 
-        p.init()
-        screen = p.display.set_mode((WIDTH, HEIGHT))
-        clock = p.time.Clock()
-        screen.fill(p.Color("white"))
-        gs = ChessEngine.GameState()
-        validMoves = gs.getValidMoves()
-        moveMade = False #flag variable for when a move is made
-        animate = False #flag variable for when we should animate a move
-        loadImages() #only do this once, before the while loop
-        running = True
-        sqSelected = () #no square is selected, keep track of the last click of the user (tuple: (row, col))
-        playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4, 4)])
-        gameOver = False #flag variable for when the game is over
+        await runGame(playerOne, playerTwo)
 
-        while running:
-            humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
-            for e in p.event.get():
-                if e.type == p.QUIT:
-                    running = False
-                #mouse handler
-                elif e.type == p.MOUSEBUTTONDOWN:
-                    if not gameOver and humanTurn:
-                        sqSelected, playerClicks, moveMade, animate = handleMouseClick(e, sqSelected, playerClicks, gs, validMoves)
-                elif e.type == p.KEYDOWN:
-                    if e.key == p.K_z: #undo when 'z' is pressed
-                        gs.undoMove() #undo the last move
-                        moveMade = True
-                        animate = False
-                        gameOver = False
-                    if e.key == p.K_r: #reset the board when 'r' is pressed
-                        gs = ChessEngine.GameState() #reset the game state, instantiate a new game state
-                        validMoves = gs.getValidMoves() #get the valid moves for the new game state
-                        sqSelected = () #reset the square selected
-                        playerClicks = [] #clear player clicks
-                        moveMade = False
-                        animate = False
-                        gameOver = False
-                    if e.key == p.K_ESCAPE: #pause the game when 'escape' is pressed
-                        pause_choice = displayPauseMenu()
-                        if pause_choice == "quit":
-                            return
-                        elif pause_choice == "main_menu":
-                            running = False  # Exit the game loop to restart main menu
-                        elif pause_choice == "resume":
-                            continue  # resume the game
+async def runGame(playerOne, playerTwo):
+    screen = p.display.set_mode((WIDTH, HEIGHT))
+    clock = p.time.Clock()
+    screen.fill(p.Color("white"))
+    gs = ChessEngine.GameState()
+    validMoves = gs.getValidMoves()
+    moveMade = False #flag variable for when a move is made
+    animate = False #flag variable for when we should animate a move
+    loadImages() #only do this once, before the while loop
+    running = True
+    sqSelected = () #no square is selected, keep track of the last click of the user (tuple: (row, col))
+    playerClicks = [] #keep track of player clicks (two tuples: [(6, 4), (4, 4)])
+    gameOver = False #flag variable for when the game is over
 
-            #AI move finder logic
-            if not gameOver and not humanTurn:
-                AIMove = ChessAI.findBestMove(gs, validMoves)
-                if AIMove is None: 
-                    AIMove = ChessAI.findRandomMove(validMoves) #if the AI cannot find the best move, then make a random move 
-                gs.makeMove(AIMove)
-                moveMade = True
-                animate = True
+    while running:
+        humanTurn = (gs.whiteToMove and playerOne) or (not gs.whiteToMove and playerTwo)
+        for e in p.event.get():
+            if e.type == p.QUIT:
+                running = False
+            #mouse handler
+            elif e.type == p.MOUSEBUTTONDOWN:
+                if not gameOver and humanTurn:
+                    sqSelected, playerClicks, moveMade, animate = handleMouseClick(e, sqSelected, playerClicks, gs, validMoves)
+            elif e.type == p.KEYDOWN:
+                if e.key == p.K_z: #undo when 'z' is pressed
+                    gs.undoMove() #undo the last move
+                    moveMade = True
+                    animate = False
+                    gameOver = False
+                if e.key == p.K_r: #reset the board when 'r' is pressed
+                    gs = ChessEngine.GameState() #reset the game state, instantiate a new game state
+                    validMoves = gs.getValidMoves() #get the valid moves for the new game state
+                    sqSelected = () #reset the square selected
+                    playerClicks = [] #clear player clicks
+                    moveMade = False
+                    animate = False
+                    gameOver = False
+                if e.key == p.K_ESCAPE: #pause the game when 'escape' is pressed
+                    pause_choice = await displayPauseMenu()
+                    if pause_choice == "quit":
+                        return
+                    elif pause_choice == "main_menu":
+                        running = False  # Exit the game loop to restart main menu
+                    elif pause_choice == "resume":
+                        continue  # resume the game
 
-            if moveMade:
-                click_sound.play()
-                if animate:
-                    animateMove(gs.moveLog[-1], screen, gs.board, clock) #animate the last move made
-                validMoves = gs.getValidMoves()
-                moveMade = False
-                animate = False
+        #AI move finder logic
+        if not gameOver and not humanTurn:
+            AIMove = ChessAI.findBestMove(gs, validMoves)
+            if AIMove is None: 
+                AIMove = ChessAI.findRandomMove(validMoves) #if the AI cannot find the best move, then make a random move 
+            gs.makeMove(AIMove)
+            moveMade = True
+            animate = True
 
-            drawGameState(screen, gs, validMoves, sqSelected)
+        if moveMade:
+            click_sound.play()
+            if animate:
+                animateMove(gs.moveLog[-1], screen, gs.board, clock) #animate the last move made
+            validMoves = gs.getValidMoves()
+            moveMade = False
+            animate = False
 
-            if gs.checkMate or gs.staleMate: 
-                gameOver = True #the game is over
-                text = 'Stalemate' if gs.staleMate else 'Black wins by checkmate' if gs.whiteToMove else 'White wins by checkmate' #if the game is over, then display the appropriate text
-                drawText(screen, text) 
-            clock.tick(MAX_FPS)
-            p.display.flip()
+        drawGameState(screen, gs, validMoves, sqSelected)
 
-
+        if gs.checkMate or gs.staleMate: 
+            gameOver = True #the game is over
+            text = 'Stalemate' if gs.staleMate else 'Black wins by checkmate' if gs.whiteToMove else 'White wins by checkmate' #if the game is over, then display the appropriate text
+            drawText(screen, text) 
+        clock.tick(MAX_FPS)
+        p.display.flip()
+        await asyncio.sleep(0)
 
 '''
 Highlight square selected and moves for piece selected
@@ -397,4 +407,5 @@ def handleMouseClick(e, sqSelected, playerClicks, gs, validMoves):
                 playerClicks = [sqSelected] #only one click, keep the latest one
     return sqSelected, playerClicks, moveMade, animate
 
-main() #call the main driver
+
+asyncio.run(main())

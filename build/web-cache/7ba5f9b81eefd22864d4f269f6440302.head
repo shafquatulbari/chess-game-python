@@ -14,12 +14,12 @@ x-proxy-cache: MISS
 X-GitHub-Request-Id: 644C:2FD87D:2EF45B:32CFD3:66AF044C
 Accept-Ranges: bytes
 Age: 0
-Date: Sun, 04 Aug 2024 04:32:13 GMT
+Date: Sun, 04 Aug 2024 05:04:40 GMT
 Via: 1.1 varnish
-X-Served-By: cache-qpg1232-QPG
-X-Cache: MISS
+X-Served-By: cache-qpg1272-QPG
+X-Cache: HIT
 X-Cache-Hits: 0
-X-Timer: S1722745933.993206,VS0,VE252
+X-Timer: S1722747880.245092,VS0,VE232
 Vary: Accept-Encoding
-X-Fastly-Request-ID: fe63359e6da1c447b0f82204934e97ead64ee81f
+X-Fastly-Request-ID: 33306ec609348ac8591da7138b059e4aa13e425c
 
