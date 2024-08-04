@@ -1,6 +1,5 @@
 import pygame as p
 import ChessEngine, ChessAI
-import asyncio
 
 WIDTH = HEIGHT = 680 #400 is another option
 DIMENSION = 8  #dimensions of a chess board are 8x8
@@ -12,10 +11,10 @@ IMAGES = {}
 p.mixer.init()
 
 # Load sound effects
-click_sound = p.mixer.Sound("sounds/capture.mp3")
+click_sound = p.mixer.Sound("sounds/capture.ogg")
 
 # Load and play background music
-p.mixer.music.load("sounds/menu.mp3")
+p.mixer.music.load("sounds/menu.ogg")
 p.mixer.music.play(-1)  # Loop the music
 
 # this class is responsible for storing all the information about the current state of a chess game. It will also be responsible for determining the valid moves at the current state. It will also keep a move log.
@@ -46,7 +45,7 @@ def create_back_button(screen):
     return back_button_rect
 
 # Display the difficulty menu screen
-async def displayDifficultyMenu():
+def displayDifficultyMenu():
     screen = p.display.set_mode((WIDTH, HEIGHT))
     p.display.set_caption('Select Difficulty')
     
@@ -88,12 +87,9 @@ async def displayDifficultyMenu():
                     return "back"
         
         p.display.flip()
-        asyncio.sleep(0)
-
-
 
 # Display the menu screen
-async def displayMenu():
+def displayMenu():
     p.init()
     screen = p.display.set_mode((WIDTH, HEIGHT))
     p.display.set_caption('Chess Menu')
@@ -137,7 +133,6 @@ async def displayMenu():
                     return "quit"
         
         p.display.flip()
-        await asyncio.sleep(0)
 
 # Display the difficulty menu screen
 async def displayPauseMenu():
@@ -177,22 +172,20 @@ async def displayPauseMenu():
                     return "quit"
         
         p.display.flip()
-        await asyncio.sleep(0)
-
 
 
 '''
 The main driver for our code. This will handle user input and updating the graphics
 '''
-async def main():
+def main():
     while True:
-        choice = await displayMenu()
+        choice = displayMenu()
         if choice == "quit":
             return
         elif choice == "computer":
             difficulty = None
             while not difficulty:
-                difficulty = await displayDifficultyMenu()
+                difficulty = displayDifficultyMenu()
                 if difficulty == "back":
                     choice = "back"
                     break
@@ -250,7 +243,7 @@ async def main():
                         animate = False
                         gameOver = False
                     if e.key == p.K_ESCAPE: #pause the game when 'escape' is pressed
-                        pause_choice = await displayPauseMenu()
+                        pause_choice = displayPauseMenu()
                         if pause_choice == "quit":
                             return
                         elif pause_choice == "main_menu":
@@ -404,5 +397,4 @@ def handleMouseClick(e, sqSelected, playerClicks, gs, validMoves):
                 playerClicks = [sqSelected] #only one click, keep the latest one
     return sqSelected, playerClicks, moveMade, animate
 
-
-asyncio.run(main())
+main() #call the main driver
