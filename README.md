@@ -1,4 +1,4 @@
-# Chess Game using Python and Pygame
+# Chess Game using Python and Pygame (https://shafquatulbari.github.io/chess-game-python/build/web/index.html)
 
 This project is a fully functional chess game developed using Python and the Pygame library. The game includes a graphical user interface (GUI) that allows players to interact with the game board and pieces seamlessly. The core components and features of this game are:
 
