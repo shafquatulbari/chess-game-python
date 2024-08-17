@@ -274,7 +274,7 @@ async def runGame(playerOne, playerTwo):
         if moveMade:
             click_sound.play()
             if animate:
-                animateMove(gs.moveLog[-1], screen, gs.board, clock) #animate the last move made
+                await animateMove(gs.moveLog[-1], screen, gs.board, clock) #animate the last move made
             validMoves = gs.getValidMoves()
             moveMade = False
             animate = False
@@ -340,7 +340,8 @@ def drawPieces(screen, board):
 '''
 Animating a move
 '''
-def animateMove(move, screen, board, clock):
+
+async def animateMove(move, screen, board, clock):
     global colors
     dR = move.endRow - move.startRow #change in row, delta row
     dC = move.endCol - move.startCol #change in column, delta column
@@ -365,6 +366,7 @@ def animateMove(move, screen, board, clock):
             screen.blit(IMAGES[move.pieceMoved], p.Rect(c*SQ_SIZE, r*SQ_SIZE, SQ_SIZE, SQ_SIZE))  
         p.display.flip() #update the screen for each frame
         clock.tick(60) #speed of the animation, 60 frames per second
+        await asyncio.sleep(0)
 
 '''
 Draw the text on the screen
